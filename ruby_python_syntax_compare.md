@@ -113,7 +113,7 @@ In Python,
 
 | Ruby | Python  | Return | Comment |
 | :--- | :---    | :---   | :---    |
-| `/\d\n/im`<br>`%r@\d\n@im`  | `re.compile(r'\d\n',flags=re.IGNORECASE | re.M)` |  |  |
+| `/\d\n/im`<br>`%r@\d\n@im`  | `re.compile(r'\d\n',flags=re.IGNORECASE \| re.M)` |  |  |
 
 ### Method (function) calls ###
 
@@ -365,15 +365,15 @@ See [a neat way](https://stackoverflow.com/questions/189645/how-to-break-out-of-
 
 | Ruby | Python  | Comment |
 | :--- | :---     | :---    |
-| `ar.each do |i|; end` | `for i in ar:` | Array |
-| `ar.each_with_index do |i, v|; end` | `for i, v in enumerate(ar):` | Array with index |
-| `ar1.zip(ar2).each do |i|; end` | `for i,j in zip(ar1, ar2):` | Two arrays |
-| `hs.each_pair do |k, v|; end` | `for i, v hs.items():` | Hash with key |
-| `hs.each_key do |ek|; end` | `for ek in hs.keys():`<br>`for ek in hs:` | Hash keys |
-| `hs.each_value do |v|; end` | `for v hs.values():` | Hash values |
-| `ar.map{|i| i-1}` | `[i-1 for i in ar]` | Python list comprehension |
-| `ar.keep_if{|i| i<2}.map{|i| i-1}`<br>`ar.filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ar if i < 2]` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
-| `hs.map{|k, v| [k, v.upcase]}.to_h` | `{a: b.upper() for a, b in hs.items()}` | (P) dict comprehension |
+| `ar.each do \|i\|; end` | `for i in ar:` | Array |
+| `ar.each_with_index do \|i, v\|; end` | `for i, v in enumerate(ar):` | Array with index |
+| `ar1.zip(ar2).each do \|i\|; end` | `for i,j in zip(ar1, ar2):` | Two arrays |
+| `hs.each_pair do \|k, v\|; end` | `for i, v hs.items():` | Hash with key |
+| `hs.each_key do \|ek\|; end` | `for ek in hs.keys():`<br>`for ek in hs:` | Hash keys |
+| `hs.each_value do \|v\|; end` | `for v hs.values():` | Hash values |
+| `ar.map{\|i\| i-1}` | `[i-1 for i in ar]` | Python list comprehension |
+| `ar.keep_if{\|i\| i<2}.map{|i| i-1}`<br>`ar.filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ar if i < 2]` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
+| `hs.map{\|k, v\| [k, v.upcase]}.to_h` | `{a: b.upper() for a, b in hs.items()}` | (P) dict comprehension |
 |   | `(i-1 for i in ar if i < 2)` | Python list generator |
 
 
@@ -384,8 +384,8 @@ See [a neat way](https://stackoverflow.com/questions/189645/how-to-break-out-of-
 | `a=5 if b==2` | `if b==2: a=5` |  |
 | `a=5 if b==2` | `a=5 if b==2 else (a or None)` | `else`-clause is mandatory;<br>*NameError* if `a` is undefined in Python |
 | `a=(b==2 ? 5 : 6)` | `a=5  if b==2 else 6`<br>`a=(5 if b==2 else 6)` | inline condition; (P) `if`-clause is **for 5** |
-| `a ||= 5` | `if a is None or a is False: a=5` | substitute if nil or false (Ruby) |
-| `a = 5 if a==0 ||`<br> `  a.respond_to?(:empty?) && a.empty?` | `a=(a or 5)` | substitute if false-**ish** (0, `""`, `[]` **etc**) (**Python!!**) |
+| `a \|\|= 5` | `if a is None or a is False: a=5` | substitute if nil or false (Ruby) |
+| `a = 5 if a==0 \|\|`<br> `  a.respond_to?(:empty?) && a.empty?` | `a=(a or 5)` | substitute if false-**ish** (0, `""`, `[]` **etc**) (**Python!!**) |
 | `a = 5 if a.nil?` | `if a is not None: a=5` | substitute if a is null |
 | `case a;when Integer, 'x';else;end` | --- | (P) No case/switch structures |
 
@@ -396,8 +396,8 @@ See [a neat way](https://stackoverflow.com/questions/189645/how-to-break-out-of-
 | `a=5 if b==2` | `if b==2: a=5` | inline condition |
 | `a=5 unless b==2` | `if not b==2: a=5` | negative condition |
 | `a_if ? b_then : c_else` | `b_then if a_if else c_else` | Ternary |
-| `m = (nil or 'Significant')`<br>`m = nil || 'Significant'` | `m = None or 'Significant'` |  |
-| `(m = nil) || (n = 5)` | --- | |
+| `m = (nil or 'Significant')`<br>`m = nil \|\| 'Significant'` | `m = None or 'Significant'` |  |
+| `(m = nil) \|\| (n = 5)` | --- | |
 | `!!some` | bool(some) | converts to Boolean |
 | `2 <= a && a < 5`<br>`(2...5).cover? a`<br>`(2...5) === a` | `2 <= a < 5` | (R) `2 <= a < 5` raises `NoMethodError` |
 
@@ -593,7 +593,7 @@ Built-in functions (Python)
 | `Object#id` | `id(obj)` | Integer |  |
 | `Object#is_a? klass`<br>`Object#kind_of? klass` | `isinstance(obj, klass)` | Boolean |  |
 | `open(fname, 'r')` | `open(fname, mode='r')` | IO/file | `buffering=n` [can be specified](https://docs.python.org/3/library/functions.html#open) (Python) |
-| `open(fname, 'r'){|io| }` | `with open(fname, mode='r') as io:` |  |  |
+| `open(fname, 'r'){\|io\| }` | `with open(fname, mode='r') as io:` |  |  |
 | `Object#to_s` | `str(obj)` | String |  |
 | `Object#inspect` | `repr(obj)` | String | Double(Ruby) and Single(Python) quotes for String |
 | `Object#class` | `type(obj)`<br>`obj.__class__` | Class |  |
@@ -613,9 +613,9 @@ Standard data classes
 | `String#downcase`   | `str#lower()` |  |
 | `String#upcase`     | `str#upper()` |  |
 |                  | `str#title()` | Title-case: "it's" → "It'S" |
-| `String#split(nil|String, 5)` | `str#split(None|String, 5)` |  |
-| `String#split(nil|String, 0)` | `str#split(None|String, None)` |  |
-| `String#split(nil|String, -1)` | --- |  |
+| `String#split(nil\|String, 5)` | `str#split(None\|String, 5)` |  |
+| `String#split(nil\|String, 0)` | `str#split(None\|String, None)` |  |
+| `String#split(nil\|String, -1)` | --- |  |
 | `String#split(/abc/, n)` | --- |  |
 | `String#strip` | `str#strip()` |  |
 |  --- | `str#strip('aab')` | Duplication of chars is irrelevant |
@@ -642,7 +642,7 @@ Standard data classes
 
 | Ruby | Python  | Comment |
 | :--- | :---     | :---    |
-| `"Var is #{5+3}"` | `f'Var is #{5+3}'` |  (Python 3.6+) |
+| `"Var is #{5+3}"` | `f'Var is {5+3}'` |  (Python 3.6+) |
 | `"it is %s and %d "%(v1, v2)` | `"it is %d and %s "%(v1, v2)` | (*old style* in Python) |
 | `sprintf("it is %s and %d", v1, v2)` | --- | |
 | --- | `'No, {} at {:9.4f}'.format('Bob', 2.1)`| | 
@@ -658,16 +658,16 @@ Standard data classes
 | `Array.new(3){?_}` | `['_']*3` | for non-immutables  |
 | `Array.new(3){Array.new(3){?_}}` | `[['_']*3 for i in range(3)]` | **NOT** `[['_']*3]*3` |
 | `Array#size`,<br> `Array#length` | `len(ary)` |
-| `Array#map{|i| i-3}`<br>`Array#map{_1-3}` | `[i-3 for i in ary]` | Python list comprehension<br>(R) 2nd form for Ruby-2.7+ |
+| `Array#map{\|i\| i-3}`<br>`Array#map{_1-3}` | `[i-3 for i in ary]` | Python list comprehension<br>(R) 2nd form for Ruby-2.7+ |
 | `Array#map{&:upcase}` | `[i.upper() for i in ary]` |  |
-| `Array#keep_if{|i| i<2}.map{|i| i-1}`<br>`Array#filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ary] if i < 2` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
+| `Array#keep_if{\|i\| i<2}.map{|i| i-1}`<br>`Array#filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ary] if i < 2` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
 | `Array#reverse` | `reversed(ary)` |  |
 | `Array#reverse!` | `ary.reverse()  |` |
 | `Array#sort!` | `ary.sort()` |  |
-| `Array#sort!{|a,b| a.size<=>b.size}` | `ary.sort(key=len)` |  |
-| `Array#sort!{|a,b| a.upcase<=>b.upcase}` | `ary.sort(key=str.upper)` |  |
-| `Array#sort!{|a,b| a<=>b}` | `ary.sort(key=lambda a: a)` | `a` must be comparable in Python |  |
-| `Array#sort!{|a,b| (a<=>b) || 0 }` | --- | If incomparable sometimes; (P) No direct ways |
+| `Array#sort!{\|a,b\| a.size<=>b.size}` | `ary.sort(key=len)` |  |
+| `Array#sort!{\|a,b\| a.upcase<=>b.upcase}` | `ary.sort(key=str.upper)` |  |
+| `Array#sort!{\|a,b\| a<=>b}` | `ary.sort(key=lambda a: a)` | `a` must be comparable in Python |  |
+| `Array#sort!{\|a,b\| (a<=>b) || 0 }` | --- | If incomparable sometimes; (P) No direct ways |
 | `ary.sort.reverse` | `sorted(ary, reverse=True)` |
 | `ary.grep(/^__/)` | `list(filter(lambda i: re.search(r'^__', i), ary))` |
 
@@ -760,7 +760,7 @@ Notably,
 | `{one: 1, two: 2}`<br>`{:one=>1, :two=>2}` | --- |  | Constructor with Symbol keys |
 | `Hash[['one', 'two'].zip [1, 2]]` | `dict(zip(['one', 'two'], [1, 2]))` |  | Constructor |
 | `Hash[[['one', 1], ['two', 2]]]` | `dict([('one', 1), ('two', 2)])` |  | Constructor |
-| `Hash[[[1, 'x'],[2,'y']].map{|k, v|[k, v.upcase]}]` | `{k: v.upper() for k, v in [(1, 'x'),(2,'y')]}` |  | dict comprehension |
+| `Hash[[[1, 'x'],[2,'y']].map{\|k, v\|[k, v.upcase]}]` | `{k: v.upper() for k, v in [(1, 'x'),(2,'y')]}` |  | dict comprehension |
 | `Hash#size`   | `len(h)` | Integer |  |
 | `Hash#empty?` | `if (len(h)==0):` | Boolean |  |
 | `Hash#keys`   | `h.keys()` | Array/[view](https://docs.python.org/3/library/stdtypes.html#dictionary-view-objects) | It used to be List (in Python 2) |
@@ -791,13 +791,13 @@ Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 | `h.fetch(nonexistent)` | `h[nonexistent]` | `h` | KeyError | |
 | `h.fetch(nonexistent, DEFAULT)` | `h.get(nonexistent, DEFAULT)` | `h` | DEFAULT |  |
 | `h.fetch(nonexistent){|k| }` | --- | `h` | Return of Block |  |
-| `h.each_key{|ek| }`    | `for ek in h:`<br>`for ek in list(h):` |  | | Iterator over keys |
+| `h.each_key{\|ek\| }`    | `for ek in h:`<br>`for ek in list(h):` |  | | Iterator over keys |
 |                        | `for ek in h.keys():` |  | | Dynamic (Python 3). Equivalent(?) to `.iterkeys()` in Python 2 |
-| `h.each_pair{|k, h| }` | `for k, h in h.items():` |  | | Iterator over pairs |
-| `h.each_value{|ev| }`  | `for ev in h.values():` |  | | Iterator over values |
-| `h.filter{ |k, v| v<=2}` | `{k: v for k, v in h.items() if v <= 2}` | | Hash | |
-| `h.filter!{|k, v| v<=2}`<br>`h.select{ |k, v| v<=2}` | `for k,v in list(h.items()): if v>2: del(h[k])` | `{'a'=>1}` | Hash or nil | (Ruby) returns nil if no changes made. |
-| `h.keep_if{|k, v| v<=2}` |  | `{'a'=>1}` | Hash | (Ruby) returns always self |
+| `h.each_pair{\|k, h\| }` | `for k, h in h.items():` |  | | Iterator over pairs |
+| `h.each_value{\|ev\| }`  | `for ev in h.values():` |  | | Iterator over values |
+| `h.filter{ \|k, v\| v<=2}` | `{k: v for k, v in h.items() if v <= 2}` | | Hash | |
+| `h.filter!{\|k, v\| v<=2}`<br>`h.select{ |k, v| v<=2}` | `for k,v in list(h.items()): if v>2: del(h[k])` | `{'a'=>1}` | Hash or nil | (Ruby) returns nil if no changes made. |
+| `h.keep_if{\|k, v\| v<=2}` |  | `{'a'=>1}` | Hash | (Ruby) returns always self |
 
 ## IO-related classes ##
 
@@ -828,7 +828,7 @@ In Ruby, `require open3` is the standard for the extra functionality.
 | Ruby | Python  | Original | Return | Comment |
 | :--- | :---    | :---     | :---   | :---    |
 | `%x(echo 'hi')` | `check_output("echo 'hi'", shell=True, encoding='utf-8')` |  |  |
-| \``cat naiyo 2>&1`\` | `check_output('cat naiyo', shell=True, encoding='utf-8',`<br>` stderr=STDOUT)` |  |  |
+| `\`cat naiyo 2>&1\`` | `check_output('cat naiyo', shell=True, encoding='utf-8',`<br>` stderr=STDOUT)` |  |  |
 | `system('cat naiyo')`<br>`$?` | `r=run(['cat', 'naiyo'], encoding='utf-8')`<br>` r.returncode` |  |  |
 | `o,e,s = Open3.capture3("echo a; sort",`<br>` :stdin_data=>"f\nb\n")` | `r=run("echo a; sort", shell=True, encoding='utf-8',`<br>` input="f\nb\n", capture_output=true)`<br>`(r.stdout,r.stderr,r.returncode)` |  |  |
 | `rescue Errno::EXXX` | `except (TimeoutExpired, FileNotFoundError)` |  |  |
@@ -877,7 +877,7 @@ with open(fname, 'w', buffering=1) as io:  # sync=true
 | `/^5.*\nab$/`    | `re.compile(r'^5.*\nab$', flags=re.M)` | |  |
 | `m = %r@E?MS([1-2])@.match s`<br>`/E?MS([1-2])/ =~ s` | `m = re.search(r'^E?MS([1-2])', s, flags=re.IGNORECASE)` | `MatchData` | (R) `$1, $&` etc available |
 | `[m[0], m[1]]` | `[m.group(), m.group(1)]` |  |  |
-| `str.gsub(/[a-f]/){|x| x.upcase}` | `re.sub(r'[a-f]', lambda x: x.upper, str)` |  | |
+| `str.gsub(/[a-f]/){\|x\| x.upcase}` | `re.sub(r'[a-f]', lambda x: x.upper, str)` |  | |
 | `str.sub(/(a)(c)/, '\2\1')` | `re.sub(r'(a)(c)', '\2\1', str, 1)` |  | |
 
 ## Duck-typing ##
