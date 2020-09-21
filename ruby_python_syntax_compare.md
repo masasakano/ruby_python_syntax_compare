@@ -372,7 +372,7 @@ See [a neat way](https://stackoverflow.com/questions/189645/how-to-break-out-of-
 | `hs.each_key do \|ek\|; end` | `for ek in hs.keys():`<br>`for ek in hs:` | Hash keys |
 | `hs.each_value do \|v\|; end` | `for v hs.values():` | Hash values |
 | `ar.map{\|i\| i-1}` | `[i-1 for i in ar]` | Python list comprehension |
-| `ar.keep_if{\|i\| i<2}.map{|i| i-1}`<br>`ar.filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ar if i < 2]` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
+| `ar.keep_if{\|i\| i<2}.map{\|i\| i-1}`<br>`ar.filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ar if i < 2]` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
 | `hs.map{\|k, v\| [k, v.upcase]}.to_h` | `{a: b.upper() for a, b in hs.items()}` | (P) dict comprehension |
 |   | `(i-1 for i in ar if i < 2)` | Python list generator |
 
@@ -382,7 +382,7 @@ See [a neat way](https://stackoverflow.com/questions/189645/how-to-break-out-of-
 | Ruby | Python  | Comment |
 | :--- | :---     | :---    |
 | `a=5 if b==2` | `if b==2: a=5` |  |
-| `a=5 if b==2` | `a=5 if b==2 else (a or None)` | `else`-clause is mandatory;<br>*NameError* if `a` is undefined in Python |
+| `a=5 if b==2` | `a=5 if b==2 else (a or None)` | (P) `else`-clause is mandatory;<br>(P) *NameError* if `a` is undefined |
 | `a=(b==2 ? 5 : 6)` | `a=5  if b==2 else 6`<br>`a=(5 if b==2 else 6)` | inline condition; (P) `if`-clause is **for 5** |
 | `a \|\|= 5` | `if a is None or a is False: a=5` | substitute if nil or false (Ruby) |
 | `a = 5 if a==0 \|\|`<br> `  a.respond_to?(:empty?) && a.empty?` | `a=(a or 5)` | substitute if false-**ish** (0, `""`, `[]` **etc**) (**Python!!**) |
@@ -660,14 +660,14 @@ Standard data classes
 | `Array#size`,<br> `Array#length` | `len(ary)` |
 | `Array#map{\|i\| i-3}`<br>`Array#map{_1-3}` | `[i-3 for i in ary]` | Python list comprehension<br>(R) 2nd form for Ruby-2.7+ |
 | `Array#map{&:upcase}` | `[i.upper() for i in ary]` |  |
-| `Array#keep_if{\|i\| i<2}.map{|i| i-1}`<br>`Array#filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ary] if i < 2` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
+| `Array#keep_if{\|i\| i<2}.map{\|i\| i-1}`<br>`Array#filter_map{(_1<2) ? _1 : nil}` | `[i-1 for i in ary] if i < 2` | (P) conditional list comprehension<br>(R) 2nd form for Ruby-2.7+ |
 | `Array#reverse` | `reversed(ary)` |  |
 | `Array#reverse!` | `ary.reverse()  |` |
 | `Array#sort!` | `ary.sort()` |  |
 | `Array#sort!{\|a,b\| a.size<=>b.size}` | `ary.sort(key=len)` |  |
 | `Array#sort!{\|a,b\| a.upcase<=>b.upcase}` | `ary.sort(key=str.upper)` |  |
 | `Array#sort!{\|a,b\| a<=>b}` | `ary.sort(key=lambda a: a)` | `a` must be comparable in Python |  |
-| `Array#sort!{\|a,b\| (a<=>b) || 0 }` | --- | If incomparable sometimes; (P) No direct ways |
+| `Array#sort!{\|a,b\| (a<=>b) \|\| 0 }` | --- | If incomparable sometimes; (P) No direct ways |
 | `ary.sort.reverse` | `sorted(ary, reverse=True)` |
 | `ary.grep(/^__/)` | `list(filter(lambda i: re.search(r'^__', i), ary))` |
 
@@ -777,7 +777,7 @@ Notably,
 
 Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 
-| Ruby | Python  | Original | Return | Comment |
+| Ruby | Python  | Original (`h` or `h1`) | Return | Comment |
 | :--- | :---    | :---     | :---   | :---    |
 | `h.clear` | `h.clear()` | `{}` |  |  |
 | `h1.merge! h2` | `h1.update(h2)` | `{'a'=>1,'b'=>3,'c'=>'y'}` | | |
@@ -787,17 +787,17 @@ Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 
 | Ruby | Python  | Comment |
 | :--- | :---     | :---    |
-| `h[nonexistent]` | `h.setdefault(nonexistent, DEFAULT)` | `{'a'=>1,'b'=>3,nonexistent=>DEFAULT}` | `nil`/DEFAULT | or Default set by `h.default=` etc (Ruby). |
+| `h[nonexistent]` | `h.setdefault(nonexistent, DEFAULT)` | `{'a'=>1,'b'=>3,nonexistent=>DEFAULT}` | `nil`/DEFAULT | or Default set by `h.default=` etc (R). |
 | `h.fetch(nonexistent)` | `h[nonexistent]` | `h` | KeyError | |
 | `h.fetch(nonexistent, DEFAULT)` | `h.get(nonexistent, DEFAULT)` | `h` | DEFAULT |  |
-| `h.fetch(nonexistent){|k| }` | --- | `h` | Return of Block |  |
+| `h.fetch(nonexistent){\|k\| }` | --- | `h` | Return of Block |  |
 | `h.each_key{\|ek\| }`    | `for ek in h:`<br>`for ek in list(h):` |  | | Iterator over keys |
 |                        | `for ek in h.keys():` |  | | Dynamic (Python 3). Equivalent(?) to `.iterkeys()` in Python 2 |
 | `h.each_pair{\|k, h\| }` | `for k, h in h.items():` |  | | Iterator over pairs |
 | `h.each_value{\|ev\| }`  | `for ev in h.values():` |  | | Iterator over values |
 | `h.filter{ \|k, v\| v<=2}` | `{k: v for k, v in h.items() if v <= 2}` | | Hash | |
-| `h.filter!{\|k, v\| v<=2}`<br>`h.select{ |k, v| v<=2}` | `for k,v in list(h.items()): if v>2: del(h[k])` | `{'a'=>1}` | Hash or nil | (Ruby) returns nil if no changes made. |
-| `h.keep_if{\|k, v\| v<=2}` |  | `{'a'=>1}` | Hash | (Ruby) returns always self |
+| `h.filter!{\|k, v\| v<=2}`<br>`h.select{ \|k, v\| v<=2}` | `for k,v in list(h.items()): if v>2: del(h[k])` | `{'a'=>1}` | Hash or nil | (R) returns nil if no changes made. |
+| `h.keep_if{\|k, v\| v<=2}` |  | `{'a'=>1}` | Hash | (R) returns always self |
 
 ## IO-related classes ##
 
@@ -806,17 +806,42 @@ Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 | `IO#close` | `io.close` |  | |  |
 | `IO#closed?` | `io.closed()` |  | Boolean |  |
 | `IO#flush` | `io.flush()` |  | |  |
-| `IO#read [size]` | `io.read([size])` |  | | `nil` (Ruby) or negative Integer (Python) means up to EOF |
-| `IO#gets [maxsize]` | `io.readline([maxsize])` |  | | At most maxsize characters if specified. `nil` at EOF (Ruby) |
+| `IO#read [size]` | `io.read([size])` |  | | (R) `nil` or (P) negative Integer means up to EOF |
+| `IO#gets [maxsize]` | `io.readline([maxsize])` |  | | (R) At most maxsize characters if specified. `nil` at EOF |
 | `while line=IO#gets {}` | `for line in f: print(line)` |  | | |
 | `IO#readline [maxsize]` | --- |  | `EOFError` at EOF | |
 | `IO#readlines [maxsize]` | `IO#readlines [maxsize]` |  | Array/list | |
-| `IO#sync` | [`io.line_buffering`](https://docs.python.org/3/library/io.html#io.TextIOWrapper.line_buffering) |  |  | In Text-mode only (Python) |
-| `IO#sync=BOOL` | `open(buffering=[0,1,-1])` |  |  | 0(unbuffering/Binary), 1(line/Text), -1(system/Def) (Python) |
-| `IO#write s` | `io.write(s)` |  | | Returns Integer (character number) (Python) |
-| `IO#write(s1, s2, s3)` | `io.writelines(ary)` |  | | Linefeeds are **not** added. (Python) |
+| `IO#sync` | [`io.line_buffering`](https://docs.python.org/3/library/io.html#io.TextIOWrapper.line_buffering) |  |  | (P) In Text-mode only |
+| `IO#sync=BOOL` | `open(buffering=[0,1,-1])` |  |  | (P) 0(unbuffering/Binary), 1(line/Text), -1(system/Def) |
+| `IO#write s` | `io.write(s)` |  | | (P) Returns Integer (character number) |
+| `IO#write(s1, s2, s3)` | `io.writelines(ary)` |  | | (P) Linefeeds are **not** added. |
 | `IO#print s` | `io.write(s)` |  | | |
-| `IO#puts s` |  |  | | a newline is guaranteed (Ruby) |
+| `IO#puts s` |  |  | | (R) a newline is guaranteed |
+
+### File-related classes ###
+
+| Ruby | Python  | Return | Comment |
+| :--- | :---    | :---   | :---    |
+| `File.exist? fname` | `os.path.exists(fname)` |  | (P) `import os` |
+| `File.readable? fname` | `os.access("myfile", os.R_OK)` |  |  |
+| `File.read fname` | `import pathlib`<br>`pathlib.Path(fname).read_text()` |  | (P)Ver.3.4+ |
+| `require 'fileutils`<br>`FileUtils.touch fname` | `import pathlib`<br>`pathlib.Path(fname).touch()` |  | (P) Python 3.4+ |
+| `require 'fileutils`<br>`FileUtils.touch(fname, :mtime => Time.now)` | ([see Stackoverflow](https://stackoverflow.com/a/1160227/3577922)) |  | (P)Ver.3.3+ |
+| `File.write fname, 'xyz'` | `print('xyz', file=open(fname, 'w'))` |  | (P) Python 3 |
+| `File.unlink fname` | `os.unlink(fname)` |  |  |
+
+### Temporary-file-related classes ###
+
+| [Ruby](https://ruby-doc.org/stdlib/libdoc/tempfile/rdoc/Tempfile.html) | [Python](https://docs.python.org/3/library/tempfile.html)  | Return | Comment |
+| :--- | :---    | :---   | :---    |
+| `require 'tempfile'` | `import tempfile` |  |  |
+| `Tempfile.open{\|f\| }` | `with tempfile.NamedTemporaryFile() as f:` |  |  |
+| `Tempfile.open(basename, dir)` | `...(mode='r+', prefix=None, dir=None)` |  | Def(P): w+b |
+| `f.path` | `f.name` |  |  |
+| `f.print('out')` | `f.write('out')` |  |  |
+| `f.syswrite('out')` | `f.write(b'out')` |  |  |
+| `f.seek 0` | `f.seek(0)` |  |  |
+| `f = Tempfile.create`<br>`f.close`<br>`f.unlink` | `with tempfile.NamedTemporaryFile(delete=False) as f:`<br>&nbsp;&nbsp;`f.close()`<br>&nbsp;&nbsp;`f.unlink()` |  |  |
 
 ### Shell interaction ###
 
@@ -828,12 +853,12 @@ In Ruby, `require open3` is the standard for the extra functionality.
 | Ruby | Python  | Original | Return | Comment |
 | :--- | :---    | :---     | :---   | :---    |
 | `%x(echo 'hi')` | `check_output("echo 'hi'", shell=True, encoding='utf-8')` |  |  |
-| `\`cat naiyo 2>&1\`` | `check_output('cat naiyo', shell=True, encoding='utf-8',`<br>` stderr=STDOUT)` |  |  |
+| `` `cat naiyo 2>&1` `` | `check_output('cat naiyo', shell=True, encoding='utf-8',`<br>` stderr=STDOUT)` |  |  |
 | `system('cat naiyo')`<br>`$?` | `r=run(['cat', 'naiyo'], encoding='utf-8')`<br>` r.returncode` |  |  |
 | `o,e,s = Open3.capture3("echo a; sort",`<br>` :stdin_data=>"f\nb\n")` | `r=run("echo a; sort", shell=True, encoding='utf-8',`<br>` input="f\nb\n", capture_output=true)`<br>`(r.stdout,r.stderr,r.returncode)` |  |  |
 | `rescue Errno::EXXX` | `except (TimeoutExpired, FileNotFoundError)` |  |  |
 
-### Common ways ###
+### Standard ways to deal with a file ###
 
 #### Ruby ####
 
@@ -885,8 +910,8 @@ with open(fname, 'w', buffering=1) as io:  # sync=true
 | Ruby | Python  | Return | Comment |
 | :--- | :---    | :---   | :---    |
 | `Object#to_s` | `str(obj)` | String |  |
-| `Object#inspect` | `repr(obj)` | String | Double(Ruby) and Single(Python) quotes for String |
-| [`Object#respond_to?`](http://ruby-doc.org/core/Object.html#method-i-respond_to-3F) `metho` | `if callable(getattr(obj, "metho", None)):`<br>`if hasattr(obj, metho) and callable(obj.__getattribute__(metho)):` | Boolean | To check a method |
+| `Object#inspect` | `repr(obj)` | String | (R)Double and (P)Single quotes for String |
+| [`Object#respond_to?`](http://ruby-doc.org/core/Object.html#method-i-respond_to-3F) `metho` | `if callable(getattr(obj, "metho", None)):`<br>`if hasattr(obj, metho) and callable(obj.__getattribute__(metho)):` | Boolean | To check a method ((P) **not** attribute) |
 
 ## Miscellaneous ##
 
