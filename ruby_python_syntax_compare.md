@@ -784,9 +784,6 @@ Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 |  | `h1.update({5: 99})` | `{'a'=>1,'b'=>3,5=>99}` | | |
 |  | `h1.update(g=99})` | `{'a'=>1,'b'=>3,'g'=>99}` | | |
 | `h1.merge h2` | `dict(h1, **h2)` | `h1` | `{'a'=>1,'b'=>3,'c'=>'y'}` | |
-
-| Ruby | Python  | Comment |
-| :--- | :---     | :---    |
 | `h[nonexistent]` | `h.setdefault(nonexistent, DEFAULT)` | `{'a'=>1,'b'=>3,nonexistent=>DEFAULT}` | `nil`/DEFAULT | or Default set by `h.default=` etc (R). |
 | `h.fetch(nonexistent)` | `h[nonexistent]` | `h` | KeyError | |
 | `h.fetch(nonexistent, DEFAULT)` | `h.get(nonexistent, DEFAULT)` | `h` | DEFAULT |  |
@@ -822,13 +819,49 @@ Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 
 | Ruby | Python  | Return | Comment |
 | :--- | :---    | :---   | :---    |
-| `File.exist? fname` | `os.path.exists(fname)` |  | (P) `import os` |
+| `File.exist? fname` | `os.path.exists(fname)`<br>`Path(fname).exists()` |  | (P) `import os`<br>`(P) import pathlib` |
 | `File.readable? fname` | `os.access("myfile", os.R_OK)` |  |  |
-| `File.read fname` | `import pathlib`<br>`pathlib.Path(fname).read_text()` |  | (P)Ver.3.4+ |
-| `require 'fileutils`<br>`FileUtils.touch fname` | `import pathlib`<br>`pathlib.Path(fname).touch()` |  | (P) Python 3.4+ |
-| `require 'fileutils`<br>`FileUtils.touch(fname, :mtime => Time.now)` | ([see Stackoverflow](https://stackoverflow.com/a/1160227/3577922)) |  | (P)Ver.3.3+ |
-| `File.write fname, 'xyz'` | `print('xyz', file=open(fname, 'w'))` |  | (P) Python 3 |
+| `File.read fname` | `Path(fname).read_text()` |  |  |
+| `FileUtils.touch fname` | `Path(fname).touch()` |  | (R) `require 'fileutils'`|
+| `require 'fileutils'`<br>`FileUtils.touch(fname, :mtime => Time.now)` | ([see Stackoverflow](https://stackoverflow.com/a/1160227/3577922)) |  | (P)Ver.3.3+ |
+| `File.write fname, 'xyz'` | `print('xyz', file=open(fname, 'w'))`<br>[`Path(fname).write_text('xyz')`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.write_text) |  | (P) Python 3<br>(P) Python 3.5+ |
 | `File.unlink fname` | `os.unlink(fname)` |  |  |
+| `File.basename fname` | [`os.path.basename(fname)`](https://docs.python.org/3/library/os.path.html#os.path.basename)<br>[`PurePath.name(fname)`](https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.name) |  |  |
+
+**Note**:
+
+In Python, the following is assumed, depending on the way you use.  Note [pathlib](https://docs.python.org/3/library/pathlib.html) is for Python 3.4+ only.
+
+```python
+  import os
+  import pathlib
+  from pathlib import Path     # or pathlib.Path
+  from pathlib import PurePath # or pathlib.PurePath
+```
+
+*Reference*: [(P) Comparison chart between os and pathlib](https://docs.python.org/3/library/pathlib.html#correspondence-to-tools-in-the-os-module)
+
+### Directory-related classes ###
+
+| Ruby | Python  | Return | Comment |
+| :--- | :---    | :---   | :---    |
+| `Dir.pwd dname`<br>`Dir.getwd dname` | [`os.getcwd()`](https://docs.python.org/3/library/os.html#os.getcwd)<br>[`Path.cwd()`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.cwd) |  |  |
+| `Dir.chdir dname`<br>`Dir.chdir(dname){}` | [`os.chdir(dname)`](https://docs.python.org/3/library/os.html?highlight=chdir#os.chdir) |  |  |
+| `Dir.glob pat` | [`glob.glob(pat)`](https://docs.python.org/3/library/glob.html?highlight=glob#glob.glob)<br>[`Path().glob(pat)`](https://docs.python.org/3/library/pathlib.html#pathlib.Path.glob) | <br>(P) list-**like** obj of `PosixPath` |   |
+|  | [`PurePath('.').match(pat)`](https://docs.python.org/3/library/pathlib.html#pathlib.PurePath.match) |   |   |
+
+**Note**:
+
+In Python, the following is assumed, depending on the way you use.  Note [pathlib](https://docs.python.org/3/library/pathlib.html) is for Python 3.4+ only.
+
+```python
+  import os
+  import pathlib
+  from pathlib import Path     # or pathlib.Path
+  from pathlib import PurePath # or pathlib.PurePath
+```
+
+* (R) Dir references: ([en](https://ruby-doc.org/core/Dir.html), [ja](https://docs.ruby-lang.org/ja/latest/class/Dir.html))
 
 ### Temporary-file-related classes ###
 
@@ -900,7 +933,7 @@ with open(fname, 'w', buffering=1) as io:  # sync=true
 | `Regexp.escape('ab*d')`<br>`Regexp.quote('ab*d')` | `re.escape('ab*d')` |  |  |
 | `/\A5.*\nab\Z/m` | `re.compile(r'^5.*\nab$', flags=re.DOTALL)` |   | (R,P) Multiline means opposite!! |
 | `/^5.*\nab$/`    | `re.compile(r'^5.*\nab$', flags=re.M)` | |  |
-| `m = %r@E?MS([1-2])@.match s`<br>`/E?MS([1-2])/ =~ s` | `m = re.search(r'^E?MS([1-2])', s, flags=re.IGNORECASE)` | `MatchData` | (R) `$1, $&` etc available |
+| `m = %r@E?MS([1-2])@i.match s`<br>`/E?MS([1-2])/i =~ s` | `m = re.search(r'^E?MS([1-2])', s, flags=re.IGNORECASE)` | `MatchData` | (R) `$1, $&` etc available |
 | `[m[0], m[1]]` | `[m.group(), m.group(1)]` |  |  |
 | `str.gsub(/[a-f]/){\|x\| x.upcase}` | `re.sub(r'[a-f]', lambda x: x.upper, str)` |  | |
 | `str.sub(/(a)(c)/, '\2\1')` | `re.sub(r'(a)(c)', '\2\1', str, 1)` |  | |
