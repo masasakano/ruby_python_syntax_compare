@@ -46,7 +46,7 @@ Structures
 | `__FILE__` |  | (relative) path of the current source file |
 |   | `__file__` | absolute path of the current source file |
 | `__LINE__` |  | current line number |
-| `Kernel#__method__` | `super().__getattribute__(`<br>`  cast(types.FrameType, inspect.currentframe()).f_code.co_name).name` | Current method name; (P) `import inspect, types`<br>`from typing import cast` |
+| `Kernel#__method__` | `inspect.getframeinfo(`<br>`  cast(types.FrameType, inspect.currentframe())).function` | Current method name; (P) `import inspect, types`<br>`from typing import cast` |
 | `Kernel#__callee__` |  | Current unaliased method name |
 | `$stdout` | `sys.stdout` | Current Stdout |
 | `$stderr` | `sys.stderr` | Current Stderr |
@@ -386,8 +386,8 @@ See [a neat way](https://stackoverflow.com/questions/189645/how-to-break-out-of-
 | `a=(b==2 ? 5 : 6)` | `a=5  if b==2 else 6`<br>`a=(5 if b==2 else 6)` | inline condition; (P) `if`-clause is **for 5** |
 | `a \|\|= 5` | `if a is None or a is False: a=5` | substitute if nil or false (Ruby) |
 | `a = 5 if a==0 \|\|`<br> `  a.respond_to?(:empty?) && a.empty?` | `a=(a or 5)` | substitute if false-**ish** (0, `""`, `[]` **etc**) (**Python!!**) |
-| `a = 5 if a.nil?` | `if a is not None: a=5` | substitute if a is null |
-| `case a;when Integer, 'x';else;end` | --- | (P) No case/switch structures |
+| `a = 5 if a.nil?` | `if a is not None: a=5` | substitute if `a` is null |
+| `case a;when Integer, 'x';else;end` | `match a:;case "X":;case _:` | (P) Ver.3.10+ only |
 
 ## Operators ##
 
@@ -616,9 +616,9 @@ Standard data classes
 | `String#split(nil\|String, 5)` | `str#split(None\|String, 5)` |  |
 | `String#split(nil\|String, 0)` | `str#split(None\|String, None)` |  |
 | `String#split(nil\|String, -1)` | --- |  |
-| `String#split(/abc/, n)` | --- |  |
+| `String#split(/abc/, n)` | `re.split(r'abc', n)` | (P) `import re` |
 | `String#strip` | `str#strip()` |  |
-|  --- | `str#strip('aab')` | Duplication of chars is irrelevant |
+|  --- | `str#strip('aab')` | (P) Duplication of chars is irrelevant |
 | `String#rstrip` | `str#rstrip()` |  |
 | `String#sub(/[\n\r]*$/, '')` | `str#rstrip('\n\r')` | Any combination of `[\n\r]` (Python) |
 | `String#chomp` | --- | 1 character (Ruby). |
@@ -669,6 +669,7 @@ Standard data classes
 | `Array#sort!{\|a,b\| a<=>b}` | `ary.sort(key=lambda a: a)` | `a` must be comparable in Python |  |
 | `Array#sort!{\|a,b\| (a<=>b) \|\| 0 }` | --- | If incomparable sometimes; (P) No direct ways |
 | `ary.sort.reverse` | `sorted(ary, reverse=True)` |
+| `Array#uniq` | `list(set(a))`<br>`list(dict.fromkeys(a))` | (P) Order unpreserved<br>(P) Ver.3.7+ (order preserved) |
 | `ary.grep(/^__/)` | `list(filter(lambda i: re.search(r'^__', i), ary))` |
 
 Suppose `a=a1=[0,1,2,3]` and `b=a2=['x','y']`
@@ -692,8 +693,14 @@ Suppose `a=a1=[0,1,2,3]` and `b=a2=['x','y']`
 | `a[1,2]=[5,6,7]` | --- | [0,5,6,7,3] | `[5,6,7]` | substitute by size |
 | --- | `a[::3]` | | [0,3] | Specify a step |
 | `a[1,0]=9` | `a[1:0]=[9]` | [0,9,1,2,3] | 9 (Ruby) | insert; **Must be iterable** in Python |
-| `a.insert(1, a2)` | `a.insert(1, a2)` | `[0,['x','y'],1,2,3]` | new `a` (R) or None (P) | insert a single object |
+| `a.insert(1, a2)` | `a.insert(1, a2)` | `[0,['x','y'],1,2,3]` | (R) new `a`, (P) None | insert a single object |
 | `a.insert(1, 5, 6)` | --- | `[0,5,6,1,2,3]` | `[0,5,6,1,2,3]` |  |
+| `a.push(4, 5)`<br>`a.append(4, 5)` | --- | `[0,1,2,3,4,5]` | `[0,1,2,3,4,5]` |  |
+| --- | `a.append(4)`<br>`a[len(a):] = [4]` | `[0,1,2,3,4]` | None | (P) TypeError for >1 args |
+| `a.pop(2)` | --- | `[0,1]` | `[2,3]` | (R) n tail elements removed |
+| --- | `a.pop(2)` | `[0,1,3]` | None | (P) n-th index element removed |
+| `a.shift(2)` | `a[:2]=()` | `[2,3]` | (R) `[0,1]`, (P) None | (R) n head elements removed |
+| `a.unshift(-1,-2)` | `a[:0]=(-1,-2)` | `[-1,-2,0,1,2,3]` | (R) `[-1,-2,0,1,2,3]`, (P) None | |
 
 ### Tuple (Python) ###
 
@@ -783,7 +790,7 @@ Suppose `h=h1={'a'=>1,'b'=>3}` and `k=h2={'c'=>'y'}`
 | `h1.merge! h2` | `h1.update(h2)` | `{'a'=>1,'b'=>3,'c'=>'y'}` | | |
 |  | `h1.update({5: 99})` | `{'a'=>1,'b'=>3,5=>99}` | | |
 |  | `h1.update(g=99})` | `{'a'=>1,'b'=>3,'g'=>99}` | | |
-| `h1.merge h2` | `dict(h1, **h2)` | `h1` | `{'a'=>1,'b'=>3,'c'=>'y'}` | |
+| `h1.merge h2` | `dict(h1, **h2)` | `h1` | `{'a'=>1,'b'=>3,'c'=>'y'}` | (P)3.9+ `|` |
 | `h[nonexistent]` | `h.setdefault(nonexistent, DEFAULT)` | `{'a'=>1,'b'=>3,nonexistent=>DEFAULT}` | `nil`/DEFAULT | or Default set by `h.default=` etc (R). |
 | `h.fetch(nonexistent)` | `h[nonexistent]` | `h` | KeyError | |
 | `h.fetch(nonexistent, DEFAULT)` | `h.get(nonexistent, DEFAULT)` | `h` | DEFAULT |  |
@@ -873,7 +880,7 @@ In Python, the following is assumed, depending on the way you use.  Note [pathli
 | `f.path` | `f.name` |  |  |
 | `f.print('out')` | `f.write('out')` |  |  |
 | `f.syswrite('out')` | `f.write(b'out')` |  |  |
-| `f.seek 0` | `f.seek(0)` |  |  |
+| `f.seek 0`<br>`f.rewind` | `f.seek(0)` |  |  |
 | `f = Tempfile.create`<br>`f.close`<br>`f.unlink` | `with tempfile.NamedTemporaryFile(delete=False) as f:`<br>&nbsp;&nbsp;`f.close()`<br>&nbsp;&nbsp;`f.unlink()` |  |  |
 
 ### Shell interaction ###
@@ -935,8 +942,8 @@ with open(fname, 'w', buffering=1) as io:  # sync=true
 | `/^5.*\nab$/`    | `re.compile(r'^5.*\nab$', flags=re.M)` | |  |
 | `m = %r@E?MS([1-2])@i.match s`<br>`/E?MS([1-2])/i =~ s` | `m = re.search(r'^E?MS([1-2])', s, flags=re.IGNORECASE)` | `MatchData` | (R) `$1, $&` etc available |
 | `[m[0], m[1]]` | `[m.group(), m.group(1)]` |  |  |
-| `str.gsub(/[a-f]/){\|x\| x.upcase}` | `re.sub(r'[a-f]', lambda x: x.upper, str)` |  | |
-| `str.sub(/(a)(c)/, '\2\1')` | `re.sub(r'(a)(c)', '\2\1', str, 1)` |  | |
+| `s.gsub(/[a-f]/){\|x\| x.upcase}` | `re.sub(r'[a-f]', lambda x: x.upper, s)` |  | |
+| `s.sub(/(a)(c)/, '\2\1')` | `re.sub(r'(a)(c)', r'\2\1', s, 1)` |  | |
 
 ## Duck-typing ##
 
